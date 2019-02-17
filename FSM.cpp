@@ -3,16 +3,17 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 struct state {
 				int num;
-				string type;
-				string secondType;
+				string type1;
+				string type2;
 };
 struct transition {
 				int startState;
-				string transition;
+				char transition;
 				int endState;
 };
 int main(int argc, char *argv[]) {
@@ -22,18 +23,17 @@ int main(int argc, char *argv[]) {
 				//stores transitions
 				vector<transition> transitions;
 				//stores current states;
-				vector<state> *currentStates = new vector<state>;
+				vector<int> currentStates;
 				string line;
 				string input = argv[2];
 				//turn string of 0's and 1's into array
-				int nextInput[input.length()];
-				for(int i = 0; i < line.length(); i++) {
-								nextInput[i] = line.at(i);
+				vector<char> nextInput;
+				for(int i = 0; i < input.length(); i++) {
+								nextInput.push_back(input.at(i));
 				}
 				//parse textfiles to create states and transistions
 				ifstream myfile(argv[1]);
 				if(myfile.is_open()) {
-								cout<<"file open";
 								while(getline(myfile, line)) {
 												cout<< line << endl;
 												istringstream iss(line);
@@ -42,12 +42,7 @@ int main(int argc, char *argv[]) {
 												string secondInput;
 												string thirdInput;
 												iss >> type >> firstInput >> secondInput >> thirdInput;
-												cout<< type<< endl;
-												cout<< firstInput << endl;
-												cout<< secondInput<< endl;
-												cout<< thirdInput<< endl;
 												if(type == "state") {
-																cout<< "yes";
 																//create state
 																state newState =
 																{
@@ -63,7 +58,7 @@ int main(int argc, char *argv[]) {
 																transition newTrans =
 																{
 																				stoi(firstInput),
-																				secondInput,
+																				secondInput[0],
 																				stoi(thirdInput)
 																};
 																transitions.push_back(newTrans);
@@ -75,55 +70,46 @@ int main(int argc, char *argv[]) {
 				else {
 								cout << "Unable to open file";
 				}
-				//check that states were inputed
-				for(int i = 0; i < states.size(); i++) {
-								cout << "State" << states[i].num << endl << "Type1: " << states[i].type << endl;
-				}
-				for(int i = 0; i < transitions.size(); i++) {
-						cout << "Start state: " << transitions[i].startState << endl << "Transition: " << transitions[i].transition << endl;
-				}
-}
-int *makeIntArray(int length)
-{
-				int *p = NULL;
-				if( length > 0 )
-				{
-								p = (int *) malloc(length*sizeof(int));
-				}
-				return p;
-}
-void deleteIntArray(int *p)
-{
-				if( p != NULL )
-				{
-								free(p);
-				}
-}
-int **makeIntMatrix(int width, int height)
-{
-				int **p = (int **) NULL;
-				int *pData = (int *) NULL;
-				if( (width > 0) && (height > 0) )
-				{
-								p = (int **) malloc(width*sizeof(int*));
-								pData = (int *) malloc(width*height*sizeof(int));
-								int i = 0;
-								while( i < width )
-								{
-												p[i] = pData+(i*height);
-												i = i+1;
+				for(state s: states) {
+								if(s.type1 == "start" || s.type2 == "start") {
+									currentStates.push_back(s.num);
 								}
 				}
-				return p;
-}
-void deleteIntMatrix(int **p)
-{
-				if( p != NULL )
-				{
-								if( p[0] != NULL )
-								{
-												free(p[0]);
+				while(!nextInput.empty()) {
+					vector<int> addState;
+					for(transition t: transitions) {
+						for(int i: currentStates) {
+							if(t.startState == i && *(nextInput.begin()) == t.transition) {
+								if(find(addState.begin(), addState.end(),t.endState) == addState.end()) {
+									addState.push_back(t.endState);
 								}
-								free(p);
+							}
+						}
+					}
+					currentStates = addState;
+					nextInput.erase(nextInput.begin());
 				}
+				vector<int> acceptStates;
+				bool accepted = false;
+				for(int i : currentStates) {
+					for(state s : states) {
+						if(i == s.num && (s.type1 == "accept" || s.type2 == "accept")) {
+							accepted = true;
+							acceptStates.push_back(i);
+						}
+					}
+				}
+				if(accepted) {
+					cout << "accept ";
+					for(auto i = acceptStates.begin(); i !=acceptStates.end(); i++) {
+						cout << *i << " ";
+					}
+				}
+				else {
+					cout << "reject ";
+					for(auto i = currentStates.begin(); i !=currentStates.end(); i++) {
+						cout << *i << " ";
+					}
+				}
+
 }
