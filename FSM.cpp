@@ -18,23 +18,36 @@ struct transition {
 int main(int argc, char *argv[]) {
 				int currentState;
 				//stores accept and start states
-				vector<state> *states = new vector<state>;
-				vector<transition> *transitions = new vector<transition>;
+				vector<state> states;
+				//stores transitions
+				vector<transition> transitions;
+				//stores current states;
+				vector<state> *currentStates = new vector<state>;
 				string line;
 				string input = argv[2];
+				//turn string of 0's and 1's into array
 				int nextInput[input.length()];
 				for(int i = 0; i < line.length(); i++) {
 								nextInput[i] = line.at(i);
 				}
+				//parse textfiles to create states and transistions
 				ifstream myfile(argv[1]);
 				if(myfile.is_open()) {
+								cout<<"file open";
 								while(getline(myfile, line)) {
+												cout<< line << endl;
 												istringstream iss(line);
 												string type;
 												string firstInput;
 												string secondInput;
 												string thirdInput;
+												iss >> type >> firstInput >> secondInput >> thirdInput;
+												cout<< type<< endl;
+												cout<< firstInput << endl;
+												cout<< secondInput<< endl;
+												cout<< thirdInput<< endl;
 												if(type == "state") {
+																cout<< "yes";
 																//create state
 																state newState =
 																{
@@ -43,7 +56,7 @@ int main(int argc, char *argv[]) {
 																				thirdInput
 																};
 																//add state to list of states
-																states->push_back(newState);
+																states.push_back(newState);
 												}
 												if(type == "transition") {
 																//create transition
@@ -53,7 +66,7 @@ int main(int argc, char *argv[]) {
 																				secondInput,
 																				stoi(thirdInput)
 																};
-																transitions->push_back(newTrans);
+																transitions.push_back(newTrans);
 												}
 
 								}
@@ -61,6 +74,13 @@ int main(int argc, char *argv[]) {
 				}
 				else {
 								cout << "Unable to open file";
+				}
+				//check that states were inputed
+				for(int i = 0; i < states.size(); i++) {
+								cout << "State" << states[i].num << endl << "Type1: " << states[i].type << endl;
+				}
+				for(int i = 0; i < transitions.size(); i++) {
+						cout << "Start state: " << transitions[i].startState << endl << "Transition: " << transitions[i].transition << endl;
 				}
 }
 int *makeIntArray(int length)

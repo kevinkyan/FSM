@@ -1,7 +1,7 @@
 #
 # Specifiy the target
 all:	Files
-
+			./Main sample_1.txt 010100
 # Specify the object files that the target depends on
 # Also specify the object files needed to create the executable
 Files: FSM.o
